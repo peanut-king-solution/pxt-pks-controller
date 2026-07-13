@@ -1,10 +1,6 @@
 # pxt-pks-controller
 
-Peanut King micro:bit Shield V2 extension for bluetooth control. Dynamically configure a custom interface on a companion app and seamlessly interact with it using sliders, buttons, joysticks, and variables.
-
-## Product URL
-
-[Peanut KING micro:bit Shield V2 Extension Shield](https://www.peanutkingsolution.com/en/product-page/peanut-king-micro-bit-shield-v2-%E6%93%B4%E5%B1%95%E6%9D%BF)
+Peanut King micro:bit extension for bluetooth control. Dynamically configure a custom interface on a companion app and seamlessly interact with it using sliders, buttons, joysticks, and variables.
 
 ## Summary
 

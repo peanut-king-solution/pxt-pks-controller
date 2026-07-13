@@ -1,5 +1,7 @@
-
-//% color="#0082FC" icon="\uf293" block="PKS Controller"
+//% weight=60
+//% icon="\uf2db" 
+//% block="PKS Controller"
+//% color="#0082FC"
 namespace pksController {
 
     // =================================
@@ -209,6 +211,7 @@ namespace pksController {
     /**
      * Enable Bluetooth and set up the remote GUI application framework.
      * You must use this before using all the other bluetooth blocks
+     * A tick will appear on the micro:bit when it is connected to the app.
      */
     //% blockId=pkscontroller_bluetooth_setup block="setup bluetooth" subcategory="Bluetooth"
     //% group="Bluetooth"
@@ -275,6 +278,7 @@ namespace pksController {
     //% group="Bluetooth"
     //% weight=98
     export function showDeviceName(): void {
+        serial.writeLine(control.deviceName())
         control.inBackground(() => {
             while (!connected) {
                 basic.showString(control.deviceName())
