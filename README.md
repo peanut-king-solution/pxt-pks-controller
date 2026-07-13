@@ -8,7 +8,7 @@ Peanut King micro:bit Shield V2 extension for bluetooth control. Dynamically con
 
 ## Summary
 
-This extension exposes the main features of the PKS Bluetooth GUI framework to MakeCode for micro:bit. It handles the underlying Bluetooth UART protocol, state management, and data parsing automatically. It includes APIs for:
+This extension exposes the main features of the Peanut Queen Controller to MakeCode for micro:bit. It handles the underlying Bluetooth UART protocol, state management, and data parsing automatically. It includes APIs for:
 
 - Bluetooth connection management and auto-reconnection
 - Dynamic GUI configuration (Sliders, Buttons, Toggles, Text Fields, Joysticks, and Variables)
@@ -17,9 +17,12 @@ This extension exposes the main features of the PKS Bluetooth GUI framework to M
 - Event-driven button press handling with automatic state resetting
 - Smart state mapping with composite keys to prevent variable collisions
 
-```package
-pkscontroller=github:mikuvandev/bluetooth-module
-```
+## Peanut Queen Controller
+
+A data visualization and Bluetooth control application that lets users dynamically configure their GUI. By simply sending a configuration message to the mobile app, users can define exactly which data to visualize and what interactive controls to display.
+
+[Peanut Queen Controller](https://play.google.com/store/apps/details?id=com.peanut.king.solution)
+
 
 ## Example: Setup and Configure GUI
 
@@ -27,22 +30,22 @@ Initialize the Bluetooth service, wait for the app to connect, and define the la
 
 ```blocks
 // Start Bluetooth and display the micro:bit's name so the app can find it
-pkscontroller.setupBluetooth()
-pkscontroller.showDeviceName()
+pksController.setupBluetooth()
+pksController.showDeviceName()
 
 // Wait until the app connects before sending configuration
-pkscontroller.waitUntilConnected()
+pksController.waitUntilConnected()
 
 // Define the GUI layout
-pkscontroller.makeConfiguration([
-    pkscontroller.createButton("Fire"),
-    pkscontroller.createToggleButton("Mode"),
-    pkscontroller.createSlider(0, 255, "Speed"),
-    pkscontroller.createTextField("Status"),
-    pkscontroller.createJoystick("angle", 255, "power", "Movement"),
-    pkscontroller.formatVariablesList([
-        pkscontroller.createVariable("sensor1", true),
-        pkscontroller.createVariable("battery", false)
+pksController.makeConfiguration([
+    pksController.createButton("Fire"),
+    pksController.createToggleButton("Mode"),
+    pksController.createSlider(0, 255, "Speed"),
+    pksController.createTextField("Status"),
+    pksController.createJoystick("angle", 255, "power", "Movement"),
+    pksController.formatVariablesList([
+        pksController.createVariable("sensor1", true),
+        pksController.createVariable("battery", false)
     ])
 ])
 ```
@@ -54,19 +57,19 @@ Access the current state of the app's GUI elements using the type-safe Getter bl
 ```blocks
 basic.forever(function () {
     // Check if a button is pressed
-    if (pkscontroller.isButtonToggled("Fire")) {
+    if (pksController.isButtonToggled("Fire")) {
         basic.showIcon(IconNames.Sword)
     }
 
     // Get a slider's value
-    let speed = pkscontroller.getSliderValue("Speed")
+    let speed = pksController.getSliderValue("Speed")
     
     // Get Joystick data
-    let angle = pkscontroller.getJoystickAngle("Movement")
-    let power = pkscontroller.getJoystickStrength("Movement")
+    let angle = pksController.getJoystickAngle("Movement")
+    let power = pksController.getJoystickStrength("Movement")
 
     // Get a text field's value
-    let statusText = pkscontroller.getTextFieldValue("Status")
+    let statusText = pksController.getTextFieldValue("Status")
 
     serial.writeLine("Speed: " + speed + ", Angle: " + angle)
     basic.pause(100)
@@ -81,11 +84,11 @@ Push data from the micro:bit back to the app to update the GUI dynamically. The 
 basic.forever(function () {
     // Send a number (e.g., from a sensor)
     let temp = input.temperature()
-    pkscontroller.sendVariableToApp("sensor1", temp)
+    pksController.sendVariableToApp("sensor1", temp)
 
     // Send a boolean (true/false)
-    let isMoving = pkscontroller.getJoystickStrength("Movement") > 0
-    pkscontroller.sendBooleanToApp("battery", isMoving)
+    let isMoving = pksController.getJoystickStrength("Movement") > 0
+    pksController.sendBooleanToApp("battery", isMoving)
     
     basic.pause(500)
 })
@@ -97,7 +100,7 @@ Use the Event block to run code exactly when a button is tapped.
 
 ```blocks
 // Register code to run when the "Fire" button is pressed in the app
-pkscontroller.onButtonPressed("Fire", function () {
+pksController.onButtonPressed("Fire", function () {
     basic.showLeds(`
         . . # . .
         . # # # .

@@ -1,6 +1,6 @@
 
 //% color="#0082FC" icon="\uf293" block="PKS Controller"
-namespace pkscontroller {
+namespace pksController {
 
     // =================================
     // Globals
