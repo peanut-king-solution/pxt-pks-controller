@@ -9,6 +9,8 @@ namespace pksController {
 
     let connected = false;
     let SEND_GLOBAL_LOCK = false;
+    let CURRENT_CONFIG_STRING: string = "";
+    let CONFIG_RECEIVED: boolean = false;
     
     // Map to store callbacks for button press events
     let buttonCallbacks: { [buttonName: string]: () => void } = {};
@@ -231,12 +233,20 @@ namespace pksController {
             `);
         });
 
-        
+        // it is a mystery why adding this makes it able to receive messages
+        // force UART to wake up
+        bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {})
+        // bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)); 
+
         control.onEvent(DAL.MICROBIT_ID_BLE_UART, DAL.MICROBIT_UART_S_EVT_DELIM_MATCH, function () {
             
             // Read the data buffer up until the newline marker
             let receivedString = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine));
             console.log("got a message: " + receivedString);
+
+            if (receivedString === "Correct config received") {
+                CONFIG_RECEIVED = true;
+            }
 
             // Check if the message is a message from app
             if (receivedString && receivedString.indexOf("T,") === 0) {
@@ -350,7 +360,6 @@ namespace pksController {
             config_string=`C,I,${configs.length-1},`
         }
         config_string += configs.join(",")
-        config_string += "\n"
 
         // generate the maps based on configs
         generateMaps(configs)
@@ -363,6 +372,18 @@ namespace pksController {
         console.log(`send data: ${config_string}`)
         // automatically determine how long the configs are
         bluetooth.uartWriteLine(config_string)
+        CURRENT_CONFIG_STRING = config_string;
+
+        while (true) {
+            console.log(`repeating action: send config string`)
+            bluetooth.uartWriteLine(CURRENT_CONFIG_STRING);
+            basic.pause(500)
+            if (CONFIG_RECEIVED) {
+                // idk what if you wanna send the config again?
+                CONFIG_RECEIVED = false;
+                break;
+            }
+        }
     }
 
     /**
