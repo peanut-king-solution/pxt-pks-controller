@@ -25,7 +25,7 @@ namespace pksController {
     let componentTypesMap: { [componentName: string]: string } = {};
     
     // update the maps when the app sends data to microbit
-    function updateMaps(name: string, value: string): void {
+    function updateMaps(name: string, value: string, fromSetter: boolean = false): void {
         let parentName = "";
         let actualChildName = "";
         let isFound = false;
@@ -66,13 +66,15 @@ namespace pksController {
 
         if (isFound && compositeKey !== "") {
             statesMap[compositeKey] = value;
-            if (componentTypesMap[parentName] === "Button") {
-                // button always sends 1 when pressed 
+            let compType = componentTypesMap[parentName];
+            if (!fromSetter && (compType === "Button" || compType === "ToggleButton")) {
                 if (buttonCallbacks[parentName]) {
                     buttonCallbacks[parentName]();
                 }
-                // Auto-reset the button state to "0" after the event
-                statesMap[compositeKey] = "0";
+                // Auto-reset only for momentary Button, not ToggleButton
+                if (compType === "Button") {
+                    statesMap[compositeKey] = "0";
+                }
             }
 
         } else {
@@ -104,7 +106,7 @@ namespace pksController {
                     let childName = "value"; 
                     parentChildrenMap[parentName] = [childName];
                     statesMap[parentName + "." + childName] = "0";
-                    componentTypesMap[parentName] = "Button";
+                    componentTypesMap[parentName] = type == "B" ? "Button" : "ToggleButton";
                 } else {
                     console.error("Setup failed for Button/ToggleButton!");
                 }
@@ -529,7 +531,7 @@ namespace pksController {
         // personal thoughts: it doesn't make sense for a button to be pressed
         // because the button is pressed for like 0.05ms and then released, so 
         // we should just have another block that checks if button "x" is pressed
-        let val = statesMap[name + ".pressed"];
+        let val = statesMap[name + ".value"];
         // The app sends "1" for toggled/pressed and "0" for not pressed/toggled
         return val === "1";
     }
@@ -560,7 +562,7 @@ namespace pksController {
     //% group="Values"
     //% weight=88
     export function textFieldValue(name: string): string {
-        return statesMap[name + ".text"] || "";
+        return statesMap[name + ".value"] || "";
     }
 
     /**
@@ -652,7 +654,7 @@ namespace pksController {
         bluetooth.uartWriteLine(message);
 
         // Update internal data, also add delay
-        updateMaps(name, value.toString());
+        updateMaps(name, value.toString(), true);
         basic.pause(100);
 
         // Release the lock
