@@ -250,24 +250,20 @@ namespace pksController {
                 let parts = receivedString.split(",");
                 
                 // Ensure the string has at least the prefix and the parameter count
-                if (parts.length >= 2) {
-                    let numParams = parseInt(parts[1]);
+                if (parts.length !== 3) {
+                    let nameIdx = 1;
+                    let valIdx = 2;
                     
-                    // Loop through each parameter pair
-                    for (let i = 0; i < numParams; i++) {
-                        // Calculate the array indices for the name and value
-                        let nameIdx = 2 + (i * 2);
-                        let valIdx = 3 + (i * 2);
+                    if (valIdx < parts.length) {
+                        let pName = parts[nameIdx];
+                        // .trim() removes any accidental trailing spaces or newline characters
+                        let pValue = parts[valIdx].trim(); 
                         
-                        if (valIdx < parts.length) {
-                            let pName = parts[nameIdx];
-                            // .trim() removes any accidental trailing spaces or newline characters
-                            let pValue = parts[valIdx].trim(); 
-                            
-                            // move stuff out of this function so no more cluttering
-                            updateMaps(pName, pValue);
-                        }
+                        // move stuff out of this function so no more cluttering
+                        updateMaps(pName, pValue);
                     }
+                } else {
+                    console.error('Parts length not equal to 3! Please contact the developer of Peanut Queen Controller.')
                 }
             }
         });
