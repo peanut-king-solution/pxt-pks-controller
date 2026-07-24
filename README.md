@@ -1,8 +1,8 @@
-# pxt-pks-controller
+# pxt-pks-controller #beta
 
 Peanut King micro:bit extension for bluetooth control. Dynamically configure a custom interface on a companion app and seamlessly interact with it using sliders, buttons, joysticks, and variables.
 
-WARNING: This extension works for micro:bit v2 only!
+WARNING: This extension may work for micro:bit v2 only!
 
 ## Summary
 
