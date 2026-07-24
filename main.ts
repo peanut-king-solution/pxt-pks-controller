@@ -249,21 +249,15 @@ namespace pksController {
             if (receivedString && receivedString.indexOf("T,") === 0) {
                 let parts = receivedString.split(",");
                 
-                // Ensure the string has at least the prefix and the parameter count
-                if (parts.length !== 3) {
-                    let nameIdx = 1;
-                    let valIdx = 2;
-                    
-                    if (valIdx < parts.length) {
-                        let pName = parts[nameIdx];
-                        // .trim() removes any accidental trailing spaces or newline characters
-                        let pValue = parts[valIdx].trim(); 
-                        
-                        // move stuff out of this function so no more cluttering
+                // Valid message: "T" + pairs of <name>,<value> → length must be odd and >= 3
+                if (parts.length >= 3 && parts.length % 2 !== 0) {
+                    for (let i = 1; i < parts.length; i += 2) {
+                        let pName = parts[i];
+                        let pValue = parts[i+1].trim();
                         updateMaps(pName, pValue);
                     }
                 } else {
-                    console.error('Parts length not equal to 3! Please contact the developer of Peanut Queen Controller.')
+                    console.log('Unexpected message format: ' + receivedString);
                 }
             }
         });
