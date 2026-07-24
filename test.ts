@@ -21,19 +21,19 @@ function testConfiguration() {
 
 function testController() {
     // Check if a button is pressed
-    if (pksController.isButtonToggled("Fire")) {
+    if (pksController.buttonToggled("Fire")) {
         basic.showIcon(IconNames.Sword)
     }
 
     // Get a slider's value
-    let speed = pksController.getSliderValue("Speed")
+    let speed = pksController.sliderValue("Speed")
     
     // Get Joystick data
-    let angle = pksController.getJoystickAngle("Movement")
-    let power = pksController.getJoystickStrength("Movement")
+    let angle = pksController.joystickAngle("Movement")
+    let power = pksController.joystickStrength("Movement")
 
     // Get a text field's value
-    let statusText = pksController.getTextFieldValue("Status")
+    let statusText = pksController.textFieldValue("Status")
 
     serial.writeLine("Speed: " + speed + ", Angle: " + angle)
     basic.pause(100)
@@ -43,7 +43,7 @@ function testController() {
     pksController.sendVariableToApp("sensor1", temp)
 
     // Send a boolean (true/false)
-    let isMoving = pksController.getJoystickStrength("Movement") > 0
+    let isMoving = pksController.joystickStrength("Movement") > 0
     pksController.sendBooleanToApp("battery", isMoving)
     
     basic.pause(500)

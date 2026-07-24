@@ -25,7 +25,7 @@ namespace pksController {
     let componentTypesMap: { [componentName: string]: string } = {};
     
     // update the maps when the app sends data to microbit
-    let updateMaps = (name: string, value: string): void => {
+    function updateMaps(name: string, value: string, fromSetter: boolean = false): void {
         let parentName = "";
         let actualChildName = "";
         let isFound = false;
@@ -66,13 +66,15 @@ namespace pksController {
 
         if (isFound && compositeKey !== "") {
             statesMap[compositeKey] = value;
-            if (componentTypesMap[parentName] === "Button") {
-                // button always sends 1 when pressed 
+            let compType = componentTypesMap[parentName];
+            if (!fromSetter && (compType === "Button" || compType === "ToggleButton")) {
                 if (buttonCallbacks[parentName]) {
                     buttonCallbacks[parentName]();
                 }
-                // Auto-reset the button state to "0" after the event
-                statesMap[compositeKey] = "0";
+                // Auto-reset only for momentary Button, not ToggleButton
+                if (compType === "Button") {
+                    statesMap[compositeKey] = "0";
+                }
             }
 
         } else {
@@ -104,7 +106,7 @@ namespace pksController {
                     let childName = "value"; 
                     parentChildrenMap[parentName] = [childName];
                     statesMap[parentName + "." + childName] = "0";
-                    componentTypesMap[parentName] = "Button";
+                    componentTypesMap[parentName] = type == "B" ? "Button" : "ToggleButton";
                 } else {
                     console.error("Setup failed for Button/ToggleButton!");
                 }
@@ -215,7 +217,7 @@ namespace pksController {
      * You must use this before using all the other bluetooth blocks
      * A tick will appear on the micro:bit when it is connected to the app.
      */
-    //% blockId=pkscontroller_bluetooth_setup block="setup bluetooth" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_setup block="setup Bluetooth" 
     //% group="Bluetooth"
     //% weight=99
     export function setupBluetooth(): void {
@@ -233,17 +235,12 @@ namespace pksController {
             `);
         });
 
-        // it is a mystery why adding this makes it able to receive messages
-        // force UART to wake up
-        bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {})
-        // bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine)); 
-
-        control.onEvent(DAL.MICROBIT_ID_BLE_UART, DAL.MICROBIT_UART_S_EVT_DELIM_MATCH, function () {
-            
+        bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
             // Read the data buffer up until the newline marker
             let receivedString = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine));
             console.log("got a message: " + receivedString);
 
+            // note: if you terminate your messages with CR+LF, this will fail
             if (receivedString === "Correct config received") {
                 CONFIG_RECEIVED = true;
             }
@@ -253,24 +250,20 @@ namespace pksController {
                 let parts = receivedString.split(",");
                 
                 // Ensure the string has at least the prefix and the parameter count
-                if (parts.length >= 2) {
-                    let numParams = parseInt(parts[1]);
+                if (parts.length !== 3) {
+                    let nameIdx = 1;
+                    let valIdx = 2;
                     
-                    // Loop through each parameter pair
-                    for (let i = 0; i < numParams; i++) {
-                        // Calculate the array indices for the name and value
-                        let nameIdx = 2 + (i * 2);
-                        let valIdx = 3 + (i * 2);
+                    if (valIdx < parts.length) {
+                        let pName = parts[nameIdx];
+                        // .trim() removes any accidental trailing spaces or newline characters
+                        let pValue = parts[valIdx].trim(); 
                         
-                        if (valIdx < parts.length) {
-                            let pName = parts[nameIdx];
-                            // .trim() removes any accidental trailing spaces or newline characters
-                            let pValue = parts[valIdx].trim(); 
-                            
-                            // move stuff out of this function so no more cluttering
-                            updateMaps(pName, pValue);
-                        }
+                        // move stuff out of this function so no more cluttering
+                        updateMaps(pName, pValue);
                     }
+                } else {
+                    console.error('Parts length not equal to 3! Please contact the developer of Peanut Queen Controller.')
                 }
             }
         });
@@ -284,7 +277,7 @@ namespace pksController {
     /**
      * show the device name if it is not connected to bluetooth
      */
-    //% blockId=pkscontroller_bluetooth_showdname block="display micro:bit name" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_showdname block="display micro:bit name" 
     //% group="Bluetooth"
     //% weight=98
     export function showDeviceName(): void {
@@ -301,7 +294,7 @@ namespace pksController {
     /**
      * will tell you if microbit is connected to bluetooth or not
      */
-    //% blockId=pkscontroller_bluetooth_connected block="bluetooth is connected" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_connected block="Bluetooth is connected" 
     //% group="Bluetooth"
     //% weight=98
     export function isConnected(): boolean {
@@ -312,7 +305,7 @@ namespace pksController {
      * wait until you are connected to bluetooth
      * blocks next block
      */
-    //% blockId=pkscontroller_bluetooth_waitconn block="wait until bluetooth is connected" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_waitconn block="wait until Bluetooth is connected" 
     //% group="Bluetooth"
     //% weight=98
     export function waitUntilConnected(): void {
@@ -329,18 +322,11 @@ namespace pksController {
         }
     }
 
-    /** =========================================
-     *               CONFIGURATION
-     *  =========================================
-     *   This part deals with configuring the GUI on the app side. 
-     *   Currently supports buttons, sliders, text fields, joysticks, and variables.
-    **/ 
-
-    /**
-     * For configuring the GUI on app side.
-     */
-
-
+    // =========================================
+    //              CONFIGURATION
+    // =========================================
+    //   This part deals with configuring the GUI on the app side. 
+    //   Currently supports buttons, sliders, text fields, joysticks, and variables.
 
     /**
      * make configuration for GUI based on what you put in here.  
@@ -349,7 +335,7 @@ namespace pksController {
      */
     // TODO: update subcategory in the future
     //% color="#f150f1"
-    //% blockId=pkscontroller_bluetooth_makeconfig block="make configuration with $configs" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_makeconfig block="make configuration with $configs" 
     //% configs.shadow="lists_create_with"
     //% configs.defl="pkscontroller_bluetooth_dummy"
     //% group="Configuration"
@@ -380,6 +366,7 @@ namespace pksController {
             basic.pause(500)
             if (CONFIG_RECEIVED) {
                 // idk what if you wanna send the config again?
+                console.log('got the config!');
                 CONFIG_RECEIVED = false;
                 break;
             }
@@ -390,7 +377,7 @@ namespace pksController {
      * Replace this with your own configuration!
      */
     //% color="#f150f1"
-    //% blockId=pkscontroller_bluetooth_dummy block="dummy" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_dummy block="dummy" 
     //% group="Configuration"
     //% blockHidden=true 
     export function createDummy(): string {
@@ -409,7 +396,7 @@ namespace pksController {
     //% min.defl=0
     //% max.defl=255
     //% name.defl="Slider"
-    //% blockId=pkscontroller_bluetooth_slider block="create slider $min $max $name" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_slider block="create slider $min $max $name" 
     //% group="Configuration"
     export function createSlider(min: number, max: number, name: string): string {
 
@@ -430,7 +417,7 @@ namespace pksController {
      */
     //% color="#f150f1"
     //% name.defl="Button"
-    //% blockId=pkscontroller_bluetooth_button block="create button $name" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_button block="create button $name" 
     //% group="Configuration"
     export function createButton(name: string): string {
         const output: string = `B,${sanitizeName(name)}`;
@@ -443,7 +430,7 @@ namespace pksController {
      */
     //% color="#f150f1"
     //% name.defl="ToggleButton"
-    //% blockId=pkscontroller_bluetooth_toggle_button block="create toggle button $name" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_toggle_button block="create toggle button $name" 
     //% group="Configuration"
     export function createToggleButton(name: string): string {
         const output: string = `TB,${sanitizeName(name)}`;
@@ -456,7 +443,7 @@ namespace pksController {
      */
     //% color="#f150f1"
     //% name.defl="TextField"
-    //% blockId=pkscontroller_bluetooth_textfield block="create text field $name" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_textfield block="create text field $name" 
     //% group="Configuration"
     export function createTextField(name: string): string {
         const output: string = `TF,${sanitizeName(name)}`;
@@ -475,7 +462,7 @@ namespace pksController {
     //% smax.min=0 smax.defl=255
     //% strengthName.defl="strength1"
     //% joystickName.defl="Joystick"
-    //% blockId=pkscontroller_bluetooth_joystick block="create joystick $joystickName angle $anglename max strength $smax strength $strengthName" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_joystick block="create joystick $joystickName angle $anglename max strength $smax strength $strengthName" 
     //% group="Configuration"
     export function createJoystick(anglename: string, smax: number, strengthName: string, joystickName: string): string {
         const output: string = `J,${sanitizeName(anglename)},${smax},${sanitizeName(strengthName)},${sanitizeName(joystickName)}`;
@@ -489,7 +476,7 @@ namespace pksController {
      */
     //% color="#a000a0"
     //% name.defl="var1"
-    //% blockId=pkscontroller_bluetooth_var block="variable $name plotable $isPlotable" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_var block="variable $name plotable $isPlotable" 
     //% group="Configuration"
     export function createVariable(name: string, isPlotable: boolean): string {
         // Returns a formatted string for this variable
@@ -501,7 +488,7 @@ namespace pksController {
      * @param vars The list of variable strings
      */
     //% color="#f150f1"
-    //% blockId=pkscontroller_bluetooth_varlist block="variables $vars" subcategory="Bluetooth"
+    //% blockId=pkscontroller_bluetooth_varlist block="variables $vars" 
     //% group="Configuration"
     //% vars.shadow="lists_create_with"
     //% vars.defl="pkscontroller_bluetooth_var"
@@ -533,14 +520,14 @@ namespace pksController {
     //% blockId=pkscontroller_bluetooth_get_button_pressed
     //% block="button %name is pressed"
     //% color="#00A3A3"
-    //% subcategory="Bluetooth"
+    //% 
     //% group="Values"
     //% weight=90
-    export function isButtonToggled(name: string): boolean {
+    export function buttonToggled(name: string): boolean {
         // personal thoughts: it doesn't make sense for a button to be pressed
         // because the button is pressed for like 0.05ms and then released, so 
         // we should just have another block that checks if button "x" is pressed
-        let val = statesMap[name + ".pressed"];
+        let val = statesMap[name + ".value"];
         // The app sends "1" for toggled/pressed and "0" for not pressed/toggled
         return val === "1";
     }
@@ -552,10 +539,10 @@ namespace pksController {
     //% blockId=pkscontroller_bluetooth_get_slider_value
     //% block="slider %name value"
     //% color="#00A3A3"
-    //% subcategory="Bluetooth"
+    //% 
     //% group="Values"
     //% weight=89
-    export function getSliderValue(name: string): number {
+    export function sliderValue(name: string): number {
         let val = statesMap[name + ".value"];
         return parseFloat(val) || 0;
     }
@@ -567,11 +554,11 @@ namespace pksController {
     //% blockId=pkscontroller_bluetooth_get_textfield_value
     //% block="text field %name value"
     //% color="#00A3A3"
-    //% subcategory="Bluetooth"
+    //% 
     //% group="Values"
     //% weight=88
-    export function getTextFieldValue(name: string): string {
-        return statesMap[name + ".text"] || "";
+    export function textFieldValue(name: string): string {
+        return statesMap[name + ".value"] || "";
     }
 
     /**
@@ -581,10 +568,10 @@ namespace pksController {
     //% blockId=pkscontroller_bluetooth_get_joystick_angle
     //% block="joystick %name angle"
     //% color="#00A3A3"
-    //% subcategory="Bluetooth"
+    //% 
     //% group="Values"
     //% weight=87
-    export function getJoystickAngle(name: string): number {
+    export function joystickAngle(name: string): number {
         // The first child of a joystick in our map is always the angle
         let children = parentChildrenMap[name];
         if (children && children.length > 0) {
@@ -601,10 +588,10 @@ namespace pksController {
     //% blockId=pkscontroller_bluetooth_get_joystick_strength
     //% block="joystick %name strength"
     //% color="#00A3A3"
-    //% subcategory="Bluetooth"
+    //% 
     //% group="Values"
     //% weight=86
-    export function getJoystickStrength(name: string): number {
+    export function joystickStrength(name: string): number {
         // The second child of a joystick in our map is always the strength
         let children = parentChildrenMap[name];
         if (children && children.length > 1) {
@@ -621,10 +608,10 @@ namespace pksController {
     //% blockId=pkscontroller_bluetooth_get_variable_value
     //% block="variable %name value"
     //% color="#00A3A3"
-    //% subcategory="Bluetooth"
+    //% 
     //% group="Values"
     //% weight=85
-    export function getVariableValue(name: string): number {
+    export function variableValue(name: string): number {
         let val = statesMap[name + ".value"];
         return parseFloat(val) || 0;
     }
@@ -641,7 +628,7 @@ namespace pksController {
     //% blockId=pkscontroller_send_var_to_app
     //% block="set variable %name to %value "
     //% color="#FF8C00"
-    //% group="Setters" subcategory="Bluetooth"
+    //% group="Setters" 
     //% weight=80
     export function sendVariableToApp(name: string, value: number): void {
         // Ensure we are connected and the variable is valid
@@ -663,7 +650,7 @@ namespace pksController {
         bluetooth.uartWriteLine(message);
 
         // Update internal data, also add delay
-        updateMaps(name, value.toString());
+        updateMaps(name, value.toString(), true);
         basic.pause(100);
 
         // Release the lock
@@ -680,7 +667,7 @@ namespace pksController {
     //% block="set variable %name to %value"
     //% value.shadow="toggleYesNo"
     //% color="#FF8C00"
-    //% group="Setters" subcategory="Bluetooth"
+    //% group="Setters" 
     //% weight=79
     export function sendBooleanToApp(name: string, value: boolean): void {
         
@@ -698,7 +685,7 @@ namespace pksController {
     //% blockId=pkscontroller_on_button_pressed
     //% block="on button %name pressed"
     //% color="#FF8C00"
-    //% group="Events" subcategory="Bluetooth"
+    //% group="Events" 
     //% weight=95
     export function onButtonPressed(name: string, handler: () => void): void {
         name = sanitizeName(name);

@@ -2,6 +2,8 @@
 
 Peanut King micro:bit extension for bluetooth control. Dynamically configure a custom interface on a companion app and seamlessly interact with it using sliders, buttons, joysticks, and variables.
 
+WARNING: This extension works for micro:bit v2 only!
+
 ## Summary
 
 This extension exposes the main features of the Peanut Queen Controller to MakeCode for micro:bit. It handles the underlying Bluetooth UART protocol, state management, and data parsing automatically. It includes APIs for:
@@ -12,6 +14,14 @@ This extension exposes the main features of the Peanut Queen Controller to MakeC
 - Sending data back to the app with built-in throttling (Setters)
 - Event-driven button press handling with automatic state resetting
 - Smart state mapping with composite keys to prevent variable collisions
+
+## Notes about usability with the default Bluetooth extension
+
+Due to this module using some of the functions of the default Bluetooth extension, using those functions may lead to unexpected behavior.
+The list of the functions overrided is provided below:
+- bluetooth.onUartDataReceived
+- bluetooth.onBluetoothConnected
+- bluetooth.onBluetoothDisconnected
 
 ## Peanut Queen Controller
 
