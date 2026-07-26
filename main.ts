@@ -78,7 +78,7 @@ namespace pksController {
             }
 
         } else {
-            console.error("Warning: Received unknown variable " + name);
+            //console.error("Warning: Received unknown variable " + name);
         }
 
     }
@@ -108,7 +108,7 @@ namespace pksController {
                     statesMap[parentName + "." + childName] = "0";
                     componentTypesMap[parentName] = type == "B" ? "Button" : "ToggleButton";
                 } else {
-                    console.error("Setup failed for Button/ToggleButton!");
+                    //console.error("Setup failed for Button/ToggleButton!");
                 }
             } else if (type == "S") {
                 // Slider: S,min,max,name
@@ -119,7 +119,7 @@ namespace pksController {
                     statesMap[parentName + "." + childName] = "0";
                     componentTypesMap[parentName] = "Slider";
                 } else {
-                    console.error("Setup failed for Slider");
+                    //console.error("Setup failed for Slider");
                 }
             } else if (type == "TF") {
                 // TextField: TF,name
@@ -131,7 +131,7 @@ namespace pksController {
                     statesMap[parentName + "." + childName] = "";
                     componentTypesMap[parentName] = "TextField";
                 } else {
-                    console.error("Setup failed for TextField");
+                    //console.error("Setup failed for TextField");
                 }
             } else if (type == "J") {
                 // Joystick: J,anglename,smax,strengthName,joystickName
@@ -147,7 +147,7 @@ namespace pksController {
                     statesMap[joystickName + "." + strengthName] = "0";
                     componentTypesMap[joystickName] = "Joystick";
                 } else {
-                    console.error("Setup failed for Joystick");
+                    //console.error("Setup failed for Joystick");
                 }
             } else if (type == "O") {
                 // Variables List: O,count,name1,plot1,name2,plot2...
@@ -165,10 +165,10 @@ namespace pksController {
                         }
                     }
                 } else {
-                    console.error("Setup failed for Variables");
+                    //console.error("Setup failed for Variables");
                 }
             } else {
-                console.error("Unknown config type: " + type);
+                //console.error("Unknown config type: " + type);
             }
         }
     }
@@ -238,7 +238,7 @@ namespace pksController {
         bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
             // Read the data buffer up until the newline marker
             let receivedString = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine));
-            console.log("got a message: " + receivedString);
+            //console.log("got a message: " + receivedString);
 
             // note: if you terminate your messages with CR+LF, this will fail
             if (receivedString === "Correct config received") {
@@ -257,7 +257,7 @@ namespace pksController {
                         updateMaps(pName, pValue);
                     }
                 } else {
-                    console.log('Unexpected message format: ' + receivedString);
+                    //console.log('Unexpected message format: ' + receivedString);
                 }
             }
         });
@@ -306,11 +306,11 @@ namespace pksController {
         while (!connected) {
             basic.pause(200)
         }
-        console.log("done connected")
+        //console.log("done connected")
         // it actually takes like 1.4s for the connection to be stable 
         // so this exist to have a little buffer
         for (let i=0; i<10; i++) {
-            console.log(`test send ${i}`)
+            //console.log(`test send ${i}`)
             bluetooth.uartWriteLine("hi")
             basic.pause(200)
         }
@@ -345,22 +345,28 @@ namespace pksController {
         generateMaps(configs)
 
         if (!connected) {
-            basic.showIcon(IconNames.No);
+            basic.showLeds(`
+                # . . . #
+                . # . # .
+                . . # . .
+                . # . # .
+                # . . . #
+            `)
             return;
         }
 
-        console.log(`send data: ${config_string}`)
+        //console.log(`send data: ${config_string}`)
         // automatically determine how long the configs are
         bluetooth.uartWriteLine(config_string)
         CURRENT_CONFIG_STRING = config_string;
 
         while (true) {
-            console.log(`repeating action: send config string`)
+            //console.log(`repeating action: send config string`)
             bluetooth.uartWriteLine(CURRENT_CONFIG_STRING);
             basic.pause(500)
             if (CONFIG_RECEIVED) {
                 // idk what if you wanna send the config again?
-                console.log('got the config!');
+                //console.log('got the config!');
                 CONFIG_RECEIVED = false;
                 break;
             }
@@ -630,7 +636,7 @@ namespace pksController {
         // dear friends, if you ever need to edit this please remember to
         // sanitize the raw input b y the user thanks
         name = sanitizeName(name);
-        // console.log("looking at vname: " + name)
+        // //console.log("looking at vname: " + name)
         if (!isValidVariable(name)) return;
 
         // Check the lock to prevent concurrent executions
