@@ -2,7 +2,9 @@
 
 Peanut King micro:bit extension for bluetooth control. Dynamically configure a custom interface on a companion app and seamlessly interact with it using sliders, buttons, joysticks, and variables.
 
-WARNING: This extension may work for micro:bit v2 only!
+## ~ reminder
+
+### Works with micro:bit V2 ONLY
 
 ## Summary
 
@@ -62,20 +64,20 @@ Access the current state of the app's GUI elements using the type-safe Getter bl
 
 ```blocks
 basic.forever(function () {
-    // Check if a button is pressed
-    if (pksController.isButtonToggled("Fire")) {
+    // Check if a toggle button is toggled
+    if (pksController.buttonToggled("Mode")) {
         basic.showIcon(IconNames.Sword)
     }
 
     // Get a slider's value
-    let speed = pksController.getSliderValue("Speed")
+    let speed = pksController.sliderValue("Speed")
     
     // Get Joystick data
-    let angle = pksController.getJoystickAngle("Movement")
-    let power = pksController.getJoystickStrength("Movement")
+    let angle = pksController.joystickAngle("Movement")
+    let power = pksController.joystickStrength("Movement")
 
     // Get a text field's value
-    let statusText = pksController.getTextFieldValue("Status")
+    let statusText = pksController.textFieldValue("Status")
 
     serial.writeLine("Speed: " + speed + ", Angle: " + angle)
     basic.pause(100)
@@ -93,8 +95,8 @@ basic.forever(function () {
     pksController.sendVariableToApp("sensor1", temp)
 
     // Send a boolean (true/false)
-    let isMoving = pksController.getJoystickStrength("Movement") > 0
-    pksController.sendBooleanToApp("battery", isMoving)
+    let isMoving = pksController.joystickStrength("Movement") > 0
+    pksController.sendBooleanToApp("moving", isMoving)
     
     basic.pause(500)
 })

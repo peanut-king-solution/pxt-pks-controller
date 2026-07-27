@@ -247,7 +247,7 @@ namespace pksController {
 
             // Check if the message is a message from app
             if (receivedString && receivedString.indexOf("T,") === 0) {
-                let parts = receivedString.split(",");
+                let parts = receivedString.split(",").filter(p => p !== "");
                 
                 // Valid message: "T" + pairs of <name>,<value> → length must be odd and >= 3
                 if (parts.length >= 3 && parts.length % 2 !== 0) {
@@ -515,6 +515,7 @@ namespace pksController {
 
     /**
      * Check if a button or toggle button is currently pressed.
+     * Not recommended for button, since press events are instant and should be handled by onButtonPresesd.
      * @param name The name of the button
      */
     //% blockId=pkscontroller_bluetooth_get_button_pressed
@@ -646,7 +647,7 @@ namespace pksController {
         SEND_GLOBAL_LOCK = true;
 
         // Format and send the message
-        let message = `R,${name},${value}`;
+        let message = `R,${name},${value},`;
         bluetooth.uartWriteLine(message);
 
         // Update internal data, also add delay

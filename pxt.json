@@ -1,7 +1,7 @@
 {
     "name": "pxt-pksdriver-bluetooth-controller",
-    "version": "1.0.1",
-    "description": "This is an extension for a bluetooth controller for micro:bit, intended for use with PEANUT KING micro:bit Shield.",
+    "version": "1.0.2",
+    "description": "A bluetooth controller for micro:bit, to use with PEANUT KING micro:bit Shield. micro:bit (V2) only.",
     "license": "MIT",
     "dependencies": {
         "core": "*",

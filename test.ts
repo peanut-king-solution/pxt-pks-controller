@@ -14,16 +14,12 @@ function testConfiguration() {
         pksController.createJoystick("angle", 255, "power", "Movement"),
         pksController.formatVariablesList([
             pksController.createVariable("sensor1", true),
-            pksController.createVariable("battery", false)
+            pksController.createVariable("moving", false)
         ])
     ])
 }
 
 function testController() {
-    // Check if a button is pressed
-    if (pksController.buttonToggled("Fire")) {
-        basic.showIcon(IconNames.Sword)
-    }
 
     // Get a slider's value
     let speed = pksController.sliderValue("Speed")
@@ -44,7 +40,7 @@ function testController() {
 
     // Send a boolean (true/false)
     let isMoving = pksController.joystickStrength("Movement") > 0
-    pksController.sendBooleanToApp("battery", isMoving)
+    pksController.sendBooleanToApp("moving", isMoving)
     
     basic.pause(500)
 }
@@ -52,4 +48,12 @@ function testController() {
 testConfiguration()
 basic.forever(function () {
     testController()
+})
+
+pksController.onButtonPressed("Fire", () => {
+    // Check if a button is pressed
+    // onButtonPressed is used because the button instantly resets to the unpressed state!
+
+    basic.showIcon(IconNames.Sword)
+
 })
