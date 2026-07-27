@@ -53,7 +53,7 @@ pksController.makeConfiguration([
     pksController.createJoystick("angle", 255, "power", "Movement"),
     pksController.formatVariablesList([
         pksController.createVariable("sensor1", true),
-        pksController.createVariable("battery", false)
+        pksController.createVariable("moving", false)
     ])
 ])
 ```
@@ -116,7 +116,6 @@ pksController.onButtonPressed("Fire", function () {
         . # # # .
         . . # . .
     `)
-    music.play(music.builtinPlayableSoundExpression(SoundExpression.Splash))
 })
 ```
 
