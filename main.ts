@@ -9,6 +9,7 @@ namespace pksController {
 
     let connected = false;
     let SEND_GLOBAL_LOCK = false;
+    let MAPS_LOCK = false;
     let CURRENT_CONFIG_STRING: string = "";
     let CONFIG_RECEIVED: boolean = false;
     
@@ -26,6 +27,8 @@ namespace pksController {
     
     // update the maps when the app sends data to microbit
     function updateMaps(name: string, value: string, fromSetter: boolean = false): void {
+        if (MAPS_LOCK) return;
+        MAPS_LOCK = true;
         let parentName = "";
         let actualChildName = "";
         let isFound = false;
@@ -80,6 +83,7 @@ namespace pksController {
         } else {
             //console.error("Warning: Received unknown variable " + name);
         }
+        MAPS_LOCK = false;
 
     }
     
@@ -343,6 +347,8 @@ namespace pksController {
 
         // generate the maps based on configs
         generateMaps(configs)
+
+        config_string += ',' // match transmission protocol specifications
 
         if (!connected) {
             basic.showLeds(`
