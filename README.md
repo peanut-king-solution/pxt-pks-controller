@@ -31,6 +31,8 @@ A data visualization and Bluetooth control application that lets users dynamical
 
 [Peanut Queen Controller](https://play.google.com/store/apps/details?id=com.peanut.king.solution)
 
+## Basic Tutorial
+
 
 ## Example: Setup and Configure GUI
 
