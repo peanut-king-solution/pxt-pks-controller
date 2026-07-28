@@ -32,6 +32,7 @@ A data visualization and Bluetooth control application that lets users dynamical
 [Peanut Queen Controller](https://play.google.com/store/apps/details?id=com.peanut.king.solution)
 
 ## Basic Tutorial
+[Peanut Queen Controller User Insturction](https://github.com/peanut-king-solution/pxt-pks-controller/blob/main/Peanut_Queen_Controller_User_Insturction.pdf)
 
 
 ## Example: Setup and Configure GUI
