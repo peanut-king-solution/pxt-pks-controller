@@ -6,6 +6,8 @@ Peanut King micro:bit extension for bluetooth control. Dynamically configure a c
 
 ### Works with micro:bit V2 ONLY
 
+Using these blocks requires the micro:bit V2 hardware. If you use any blocks that attempt access flash memory on a micro:bit v1 board, you will see the **927** error code on the screen.
+
 ## Summary
 
 This extension exposes the main features of the Peanut Queen Controller to MakeCode for micro:bit. It handles the underlying Bluetooth UART protocol, state management, and data parsing automatically. It includes APIs for:
@@ -32,7 +34,7 @@ A data visualization and Bluetooth control application that lets users dynamical
 [Peanut Queen Controller](https://play.google.com/store/apps/details?id=com.peanut.king.solution)
 
 ## Basic Tutorial
-[Peanut Queen Controller User Insturction](https://github.com/peanut-king-solution/pxt-pks-controller/blob/main/Peanut_Queen_Controller_User_Insturction.pdf)
+[Peanut Queen Controller User Insturction](https://peanut-king-solution.github.io/pxt-pks-controller/Peanut_Queen_Controller_User_Instruction.pdf)
 
 
 ## Example: Setup and Configure GUI
